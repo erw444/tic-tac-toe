@@ -103,14 +103,26 @@ class Game extends React.Component {
     });
   }
 
-  createDescendingMoveList(history) {
+  createMoveList(history) {
+    let oldStep;
     return history.map((step, move) => {
+      let moveCoordinates;
+      if(oldStep){
+        for(let i = 0; i < step.squares.length; i++){
+          if(oldStep.squares[i] !== step.squares[i]){
+            let column = Math.floor(i/3);
+            let row = i - (column)*3;
+            moveCoordinates = ' (' + ++column + ',' + ++row + ')';
+          }
+        }
+      }
       let desc = move ?
-        'Go to move #' + move :
+        'Go to move #' + move  + moveCoordinates:
         'Go to game start';
       if(move === this.state.stepNumber){
         desc = <strong>{desc}</strong>
       }
+      oldStep = step;
       return (
         <li key={move}>
           <button onClick={() => this.jumpTo(move)}>{desc}</button>
@@ -119,20 +131,12 @@ class Game extends React.Component {
     });
   }
 
+  createDescendingMoveList(history) {
+    return this.createMoveList(history);
+  }
+
   createAscendingMoveList(history) {
-    return history.map((step, move) => {
-      let desc = move ?
-        'Go to move #' + move :
-        'Go to game start';
-      if(move === this.state.stepNumber){
-        desc = <strong>{desc}</strong>
-      }
-      return (
-        <li key={move}>
-          <button onClick={() => this.jumpTo(move)}>{desc}</button>
-        </li>
-      );
-    }).reverse();
+    return this.createMoveList(history).reverse();
   }
 
   render() {
